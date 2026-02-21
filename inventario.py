@@ -1,8 +1,11 @@
 from producto import Producto
 
 class Inventario:
-    def __init__(self):
+    def __init__(self,archivo = "inventario.txt"):
         self.productos = []
+        self.archivo = archivo
+        self.cargar_desde_archivo()
+
     def agregar_producto(self, producto):
         for p in self.productos:
             if p.get_id() == producto.get_id():
@@ -10,12 +13,14 @@ class Inventario:
                 return
         self.productos.append(producto)
         print("Producto agregado correctamente")
+        self.guardar_en_archivo()
 
     def eliminar_producto(self, id_producto):
         for p in self.productos:
             if p.get_id() == id_producto:
                 self.productos.remove(p)
                 print("Producto eliminado correctamente")
+                self.guardar_en_archivo()
                 return
         print("Producto no encontrado")
 
@@ -30,6 +35,7 @@ class Inventario:
                     p.set_precio(nuevo_precio)
 
                 print ("Producto actualizado correctamente")
+                self.guardar_en_archivo()
                 return
         print ("Producto no encontrado")
 
@@ -54,5 +60,36 @@ class Inventario:
         else:
             for producto in self.productos:
                 print(producto)
+
+    # -------------------------
+    # GUARDAR EN ARCHIVO
+    # -------------------------
+
+    def guardar_en_archivo(self):
+        try:
+            with open(self.archivo, "w") as f:
+                for p in self.productos:
+                    f.write(f"{p.get_id()},{p.get_nombre()},{p.get_cantidad()},{p.get_precio()}\n")
+                    print("Inventario guardado en archivo.")
+        except PermissionError:
+            print("No tienes permisos para escribir el archivo.")
+
+
+   # -------------------------
+   # CARGAR DESDE ARCHIVO
+   # -------------------------
+    def cargar_desde_archivo(self):
+            try:
+                with open(self.archivo, "r") as f:
+                    for linea in f:
+                        id_,nombre,cantidad,precio = linea.strip().split(",")
+                        producto = Producto(id_,nombre,int(cantidad),float(precio))
+                        self.productos.append(producto)
+                print("Inventario cargado desde archivo.")
+            except FileNotFoundError:
+                print("Archivo no encontrado. Se creara uno nuevo.")
+                open(self.archivo, "w").close()
+
+
 
 
